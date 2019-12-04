@@ -4,6 +4,7 @@ QtGui::QtGui(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+
 }
 void QtGui::on_checkBox_clicked()
 {
