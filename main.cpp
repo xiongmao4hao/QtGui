@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	QtGui w//¶þºÅ»ú
+	QtGui w;
 	w.setWindowTitle(QStringLiteral("kinect´°¿Ú"));
 	w.show();
 	return a.exec();
