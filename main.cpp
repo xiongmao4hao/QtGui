@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	QtGui w;？、三号机
+	QtGui w//二号机
 	w.setWindowTitle(QStringLiteral("kinect窗口"));
 	w.show();
 	return a.exec();
