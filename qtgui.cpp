@@ -5,30 +5,22 @@ QtGui::QtGui(QWidget *parent)
 {
 	ui.setupUi(this);
 }
-void QtGui::on_checkBox_clicked()
-{
-	if (ui.checkBox->isChecked())
-	{
-		ui.lineEdit->setReadOnly(true);
-	}
-	else
-	{
-		ui.lineEdit->setReadOnly(false);
-	}
-}
-void QtGui::on_checkBox_2_clicked()
-{
-	if (ui.checkBox_2->isChecked())
-	{
-		ui.lineEdit->setEchoMode(QLineEdit::Password);
-	}
-	else
-	{
-		ui.lineEdit->setEchoMode(QLineEdit::Normal);
-	}
-}
 
-void QtGui::on_pushButton_clicked()
+void qtgui::timerEvent(QTimerEvent* event)
 {
-	ui.label->setText(ui.lineEdit->text());
+	//判断当前定时器对应的是哪个ld.
+	if (event->timerId() == this->m_lamp)
+	{
+		if (this->m_lampStatus == false)
+		{
+			//设置按钮的图标.
+			ui.toolButton->setIcon(QIcon("Icons/lamp.png"));
+			this->m_lampStatus = true;
+		}
+		else
+		{
+			ui.toolButton->setIcon(QIcon("Icons/space.png"));
+			this->m_lampStatus = false;
+		}
+	}
 }
