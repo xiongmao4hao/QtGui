@@ -22,13 +22,15 @@ void QtGui::timerEvent(QTimerEvent* event)
 		if (this->m_lampStatus == false)
 		{
 			QString line = "dd";
-			//设置按钮的图标.
+			//设置显示.
 			ui.shoulder_left->setText(line);
-			
 			this->m_lampStatus = true;
 		}
 		else
 		{
+			QString line = "sd";
+			//设置显示.
+			ui.shoulder_left->setText(line);
 			this->m_lampStatus = false;
 		}
 	}
