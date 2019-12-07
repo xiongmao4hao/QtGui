@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>qtgui</class>
- <widget class="QMainWindow" name="qtgui">
+ <class>QtGuiClass</class>
+ <widget class="QMainWindow" name="QtGuiClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -515,6 +515,32 @@
      <string>暂定/开始</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="stopButton">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>630</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>终止</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="startButton">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>630</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>开始</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -544,7 +570,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>qtgui</receiver>
+   <receiver>QtGuiClass</receiver>
    <slot>start_pause()</slot>
    <hints>
     <hint type="sourcelabel">

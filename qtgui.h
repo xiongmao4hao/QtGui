@@ -13,8 +13,17 @@ public:
 private:
 	Ui::QtGuiClass ui;
 
+protected:
+	void timerEvent(QTimerEvent* event);
+
+private :
+	int m_lamp;
+	bool m_lampStatus = false;
+
 private slots:
-	void on_checkBox_clicked();
-	void on_checkBox_2_clicked();
-	void on_pushButton_clicked();
+	void startTimerSlot();
+	void stopTimerSlot();
+	//void on_checkBox_clicked();
+	//void on_checkBox_2_clicked();
+	//void on_pushButton_clicked();
 };
