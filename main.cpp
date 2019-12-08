@@ -1,6 +1,10 @@
 #include "qtgui.h"
 #include <QtWidgets/QApplication>
 #include "kinect_record.h" 
+#include <thread>
+#include <iostream>
+#include <windows.h>
+
 
 int main(int argc, char *argv[])
 {
@@ -9,5 +13,6 @@ int main(int argc, char *argv[])
 	w.setWindowTitle(QStringLiteral("kinect´°¿Ú"));
 	w.show();
 	record_main();
+	thread* recordd = thread(record_main());
 	return app.exec();
 }

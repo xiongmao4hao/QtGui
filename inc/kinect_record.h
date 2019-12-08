@@ -14,6 +14,8 @@
 #include "pixel.h"
 #include "depthpixelcolorizer.h"
 #include "staticimageproperties.h"
+#include "qtgui.h"
+#include <QtWidgets/QApplication>
 
 
 int record_main();

@@ -339,23 +339,20 @@ int record_main()
 		cout << "threads' id is " << tids_s[i].get_id() << endl;
 	}
 
+	////保证子线程停止
+	//for (int i = 0; i < num; ++i)
+	//{
+	//	tids[i].join();
+	//}
+	////tid_ss.join();
+	////or use detach保证子线程稳定
+	////th1.detach();
+	////th2.detach();
 
-	//保证子线程停止
-	for (int i = 0; i < num; ++i)
-	{
-		tids[i].join();
-	}
-	//tid_ss.join();
-	//or use detach保证子线程稳定
-	//th1.detach();
-	//th2.detach();
-
-	//释放内存,new后最好做，虽然进程结束后都会回收
-	delete[] tids;
-	delete[] tids_s;
-	delete[] colorframe;
-
-
+	////释放内存,new后最好做，虽然进程结束后都会回收
+	//delete[] tids;
+	//delete[] tids_s;
+	//delete[] colorframe;
 	return 0;
 }
 
