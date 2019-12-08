@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	QtGui w(0);//无法设置Qt::WindowType？
 	w.setWindowTitle(QStringLiteral("kinect窗口"));
 	w.show();
-	record_main();
-	thread* recordd = thread(record_main());
+	std::thread record = std::thread(record_main);
+	record.detach();
 	return app.exec();
 }
