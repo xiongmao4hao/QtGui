@@ -19,4 +19,6 @@
 #include <k4abt.h>
 #include <k4abttypes.h>
 #include "getAngel.h"
-int record_main();
+
+
+int record_main(float(&joints_Angel)[12]);

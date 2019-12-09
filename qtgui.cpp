@@ -21,7 +21,7 @@ void QtGui::timerEvent(QTimerEvent* event)
 	{
 		if (this->m_lampStatus == false)
 		{
-			QString line = "dd";
+			QString line = 11;
 			//ÉèÖÃÏÔÊ¾.
 			ui.shoulder_left->setText(line);
 			this->m_lampStatus = true;

@@ -31,7 +31,7 @@ void save(cv::Mat colorFrame, int i, int frame_count)//每次保存时所创建的线程
 	cout << "You can take another picture1!" << endl;
 }
 
-void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i, int master_num, int num)  //普通的函数，用来执行线程
+void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i, int master_num, int num, float(&joints_Angel)[12])  //普通的函数，用来执行线程
 {
 	//为save建立的变量
 	int flag = -1, flag_r = -1;
@@ -144,8 +144,7 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 								////***************求角度*******************
 								//float (*joints_Angel)[12] ;
 								//for (int i = 0; i < 12; i++) (*joints_Angel)[i] = NULL;//错误：不能创建空的数组初始化
-								float joints_Angel[12];
-								for (int i = 0; i < 12; i++) joints_Angel[i] = NULL; 
+								
 								JointsPositionToAngel(skeleton, &joints_Angel);//必须传入地址&，joints_Angel虽然值相同但是数据类型有问题
 								for (int i = 0; i < 12; i++)
 								{
@@ -233,11 +232,16 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 				strcat(name, buffer); //时间
 				strcat(name, tmp); //文件序号
 				strcat(name, ".mkv"); //文件后缀名
-				k4a_record_close(record_d);//关闭录像句柄
+				
 				VERIFY(k4a_record_create(name, dev[i], config[i], &record_d), "create record failed!");
 				VERIFY(k4a_record_write_header(record_d), "write record header failed!");
 				//创建关节点文件
-				//fclose(fp);//关闭关节点文件
+				if (fp != NULL)
+				{
+					k4a_record_close(record_d);//关闭录像句柄
+					fclose(fp);//关闭关节点文件
+					fclose(fpa);//关闭关节角文件
+				}
 				strcpy(namet, ".\\fulloutput-"); //前面的filename_
 				strcat(namet, buffer); //时间
 				strcat(namet, tmp); //文件序号
@@ -320,12 +324,12 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 		//}
 		if (KEY_DOWN('Q'))
 		{
-			k4a_record_close(record_d);//关闭录像句柄
 			k4a_device_stop_cameras(dev_d);//停止流
 			k4abt_tracker_shutdown(tracker);//关闭捕捉
 			k4abt_tracker_destroy(tracker);
 			if (fp != NULL)
 			{
+				k4a_record_close(record_d);//关闭录像句柄
 				fclose(fp);//关闭关节点文件
 				fclose(fpa);//关闭关节角文件
 			}
@@ -435,7 +439,7 @@ uint32_t init_start(int* master_num)
 //
 //}
 
-int record_main()
+int record_main(float (&joints_Angel)[12])
 {
 	//主函数所用变量
 
@@ -452,7 +456,7 @@ int record_main()
 	//tid_ss = thread(keyboards);
 	for (int i = 0; i < num; ++i)
 	{
-		tids[i] = thread(cap, ref(dev[i]), ref(colorframe[i]), ref(record[i]), i, master_num, num);
+		tids[i] = thread(cap, ref(dev[i]), ref(colorframe[i]), ref(record[i]), i, master_num, num, ref(joints_Angel));
 
 	}
 	for (int i = 0; i < num; ++i)
