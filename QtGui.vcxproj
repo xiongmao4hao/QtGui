@@ -94,6 +94,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="qtgui.cpp" />
+    <ClCompile Include="src\getAngel.cpp" />
     <ClCompile Include="src\kinect_record.cpp" />
     <ClCompile Include="src\StaticImageProperties.cpp" />
     <ClCompile Include="src\stry.cpp" />
@@ -109,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\DepthPixelColorizer.h" />
+    <ClInclude Include="inc\getAngel.h" />
     <ClInclude Include="inc\kinect_record.h" />
     <ClInclude Include="inc\Pixel.h" />
     <ClInclude Include="inc\StaticImageProperties.h" />

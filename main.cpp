@@ -15,4 +15,5 @@ int main(int argc, char *argv[])
 	std::thread record = std::thread(record_main);
 	record.detach();
 	return app.exec();
+	
 }

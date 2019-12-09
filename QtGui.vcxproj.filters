@@ -40,6 +40,9 @@
     <ClCompile Include="src\stry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\getAngel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qtgui.h">
@@ -67,6 +70,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\StaticImageProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\getAngel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

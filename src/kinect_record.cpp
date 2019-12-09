@@ -17,6 +17,7 @@ thread* tids;
 thread* tids_s;
 k4a_device_t* dev;
 k4a_record_t* record = NULL;
+k4a_calibration_t* sensor_calibration;
 k4a_device_configuration_t* config;
 mutex Flag1to1, Flagr1to1;
 int flag1to1 = 0, flagr1to1 = 0;
@@ -35,13 +36,14 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 	//为save建立的变量
 	int flag = -1, flag_r = -1;
 	int frame_count = 0;
-
-
+	FILE* fp = NULL;
+	FILE* fpa = NULL;
 	//主要功能实现所用变量
 	//k4a::image depthImage;
 	k4a_image_t colorImage;
 	//k4a::image irImage;
-
+	k4a_float3_t tf_source_depth;
+	k4a_float3_t tf_target_color;
 	//cv::Mat depthFrame;
 	//cv::Mat irFrame;
 
@@ -50,6 +52,10 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 	uint8_t* colorTextureBuffer;
 
 	k4a_capture_t sensor_capture;//捕获用变量
+	//关节点追踪变量tracker的建立
+	k4abt_tracker_t tracker = NULL;
+	k4abt_tracker_configuration_t tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
+	VERIFY(k4abt_tracker_create(&sensor_calibration[i], tracker_config, &tracker), "Body tracker initialization failed!");
 	//查看capture地址
 	//cout << "capture adress" << &sensor_capture << endl;
 
@@ -104,12 +110,106 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 			{
 				if (record_d != NULL)
 				{
+					//写视频
 					k4a_record_write_capture(record_d, sensor_capture);
-					cout << "record\n";
+					cout << "have recorded\n";
+					//捕获并写入人体骨架
+					k4a_wait_result_t queue_capture_result = \
+						k4abt_tracker_enqueue_capture(tracker, sensor_capture, K4A_WAIT_INFINITE);//异步提取骨骼信息
+					if (queue_capture_result == K4A_WAIT_RESULT_TIMEOUT)// && queue_capture_result1 == K4A_WAIT_RESULT_TIMEOUT)
+					{
+						// It should never hit timeout when K4A_WAIT_INFINITE is set.
+						printf("Error! Add capture to tracker process queue timeout!\n");
+					}
+					else if (queue_capture_result == K4A_WAIT_RESULT_FAILED)// && queue_capture_result1 == K4A_WAIT_RESULT_FAILED)
+					{
+						printf("Error! Add capture to tracker process queue failed!\n");
+					}
+					else
+					{
+						k4abt_frame_t body_frame = NULL;
+						k4a_wait_result_t pop_frame_result = \
+							k4abt_tracker_pop_result(tracker, &body_frame, K4A_WAIT_INFINITE);
+						if (pop_frame_result == K4A_WAIT_RESULT_SUCCEEDED)
+						{
+							//Get the number of detecied human bodies
+							//size_t num_bodies = k4abt_frame_get_num_bodies(body_frame0);
+							//Get access to every idex of human bodies
+							k4abt_skeleton_t skeleton;
+							k4a_result_t get_body_skeleton = \
+								k4abt_frame_get_body_skeleton(body_frame, 0, &skeleton);
+
+							if (get_body_skeleton == K4A_RESULT_SUCCEEDED)
+							{
+								////***************求角度*******************
+								float* joints_Angel;
+								joints_Angel = JointsPositionToAngel(skeleton);
+								for (int i = 0; i < 12; i++)
+								{
+									//printf("%f", joints_Angel[i]);
+									//printf("   ");
+									fprintf(fpa,"%f,", joints_Angel[i]);//注意每个保存
+								}
+								fprintf(fpa, "\n");
+								//****************************************
+								uint64_t timestamp;
+								timestamp = k4abt_frame_get_device_timestamp_usec(body_frame);
+								fprintf(fp, "%llu,", timestamp);
+								for (int i = 0; i < 32; i++)
+								{
+									// write the raw cordinates into the txt file
+									/*tf_source_depth.xyz.x = skeleton.joints[i].position.xyz.x;
+									tf_source_depth.xyz.y = skeleton.joints[i].position.xyz.y;
+									tf_source_depth.xyz.z = skeleton.joints[i].position.xyz.z;*/
+									tf_target_color.xyz.x = skeleton.joints[i].position.xyz.x;
+									tf_target_color.xyz.y = skeleton.joints[i].position.xyz.y;
+									tf_target_color.xyz.z = skeleton.joints[i].position.xyz.z;
+									/* Doing cordinate translation there */
+								/*	k4a_result_t tf_result = \
+										k4a_calibration_3d_to_3d\
+										(&sensor_calibration[i], &tf_source_depth, K4A_CALIBRATION_TYPE_DEPTH, K4A_CALIBRATION_TYPE_COLOR, &tf_target_color);*/
+										// write the transfered cordinates into the txt file
+									if (1)// tf_result == K4A_RESULT_SUCCEEDED)//为了彩色，深度相机旋转变换是否成功的预留变量tf_result
+									{
+										fprintf(fp, "%f,%f,%f,", tf_target_color.xyz.x, tf_target_color.xyz.y, tf_target_color.xyz.z);
+									}
+									else {
+										printf("Cordinates transfered failed!\n");
+									}
+
+									//fprintf(fp0, "%f,%f,%f,", skeleton0.joints[i].position.xyz.x, skeleton0.joints[i].position.xyz.y, skeleton0.joints[i].position.xyz.z);
+								}
+								fprintf(fp, "\n");
+							}
+							else if (get_body_skeleton == K4A_RESULT_FAILED)
+							{
+								printf("Get body skeleton failed!!\n");
+							}
+							uint32_t id = k4abt_frame_get_body_id(body_frame, 1);
+							//printf("Body ID is %u\n", id);
+
+							//}
+							//printf("%zu bodies are detected!\n", num_bodies);
+
+							k4abt_frame_release(body_frame);
+						}
+						else if (pop_frame_result == K4A_WAIT_RESULT_TIMEOUT)
+						{
+							//  It should never hit timeout when K4A_WAIT_INFINITE is set.
+							printf("Error! Pop body frame result timeout!\n");
+							break;
+						}
+						else
+						{
+							printf("Pop body frame result failed!\n");
+							break;
+						}
+					}
 				}
 
 			}
-			std::unique_lock<std::mutex> locker_r(Flagr1to1);//保证不冲突的互斥变量
+			//互斥量Flagr1to1，保证拍照数量
+			std::unique_lock<std::mutex> locker_r(Flagr1to1);
 			if (KEY_DOWN('N') && flag_r == -1 || flagr1to1 != 0)
 			{
 				if (i == master_num)
@@ -118,7 +218,7 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 					flagr1to1 -= 1;
 				locker_r.unlock();
 				flag_r = 0;
-				char name[220], tmp[20], buffer[80];
+				char name[220], namet[220], tmp[20], buffer[80];
 				// 基于当前系统的当前日期/时间
 				time_t now = time(0);
 				// 把 now 转换为字符串形式
@@ -133,6 +233,19 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 				k4a_record_close(record_d);//关闭录像句柄
 				VERIFY(k4a_record_create(name, dev[i], config[i], &record_d), "create record failed!");
 				VERIFY(k4a_record_write_header(record_d), "write record header failed!");
+				//创建关节点文件
+				//fclose(fp);//关闭关节点文件
+				strcpy(namet, ".\\fulloutput-"); //前面的filename_
+				strcat(namet, buffer); //时间
+				strcat(namet, tmp); //文件序号
+				strcat(namet, ".csv"); //文件后缀名
+				fp = fopen(namet, "w");//创建关节点文件
+				//创建关节角度文件
+				strcpy(namet, ".\\angleoutput-"); //前面的filename_
+				strcat(namet, buffer); //时间
+				strcat(namet, tmp); //文件序号
+				strcat(namet, ".csv"); //文件后缀名
+				fpa = fopen(namet, "w");//创建关节点文件
 			}
 			else
 				locker_r.unlock();
@@ -206,6 +319,13 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 		{
 			k4a_record_close(record_d);//关闭录像句柄
 			k4a_device_stop_cameras(dev_d);//停止流
+			k4abt_tracker_shutdown(tracker);//关闭捕捉
+			k4abt_tracker_destroy(tracker);
+			if (fp != NULL)
+			{
+				fclose(fp);//关闭关节点文件
+				fclose(fpa);//关闭关节角文件
+			}
 			k4a_device_close(dev_d);
 			break;
 		}
@@ -225,8 +345,7 @@ uint32_t init_start(int* master_num)
 	record = new k4a_record_t[devicecount]{ NULL };//初始化为NULL
 	dev = new k4a_device_t[devicecount];
 	config = new k4a_device_configuration_t[devicecount];
-
-	char str[5];
+	sensor_calibration = new k4a_calibration_t[devicecount];
 
 	for (uint8_t deviceindex = 0; deviceindex < devicecount; deviceindex++)
 	{
@@ -282,8 +401,7 @@ uint32_t init_start(int* master_num)
 		cout << "started opening k4a device..." << endl;
 		VERIFY(k4a_device_start_cameras(dev[deviceindex], &config[deviceindex]), "Start K4A cameras failed!");//启动
 		//校准设备
-		k4a_calibration_t sensor_calibration;
-		VERIFY(k4a_device_get_calibration(dev[deviceindex], config[deviceindex].depth_mode, config[deviceindex].color_resolution, &sensor_calibration),
+		VERIFY(k4a_device_get_calibration(dev[deviceindex], config[deviceindex].depth_mode, config[deviceindex].color_resolution, &sensor_calibration[deviceindex]),
 			"Get depth camera calibration failed!")
 			VERIFY(k4a_device_set_color_control(dev[deviceindex], K4A_COLOR_CONTROL_BRIGHTNESS, K4A_COLOR_CONTROL_MODE_MANUAL, 150), "color brightness control failed");//手动设置曝光
 		cout << "finished opening k4a device!\n" << endl;
@@ -291,6 +409,7 @@ uint32_t init_start(int* master_num)
 	return devicecount;
 
 }
+
 
 
 
@@ -339,20 +458,23 @@ int record_main()
 		cout << "threads' id is " << tids_s[i].get_id() << endl;
 	}
 
-	////保证子线程停止
-	//for (int i = 0; i < num; ++i)
-	//{
-	//	tids[i].join();
-	//}
-	////tid_ss.join();
-	////or use detach保证子线程稳定
-	////th1.detach();
-	////th2.detach();
 
-	////释放内存,new后最好做，虽然进程结束后都会回收
-	//delete[] tids;
-	//delete[] tids_s;
-	//delete[] colorframe;
+	//保证子线程停止
+	for (int i = 0; i < num; ++i)
+	{
+		tids[i].join();
+	}
+	//tid_ss.join();
+	//or use detach保证子线程稳定
+	//th1.detach();
+	//th2.detach();
+
+	//释放内存,new后最好做，虽然进程结束后都会回收
+	delete[] tids;
+	delete[] tids_s;
+	delete[] colorframe;
+
+
 	return 0;
 }
 

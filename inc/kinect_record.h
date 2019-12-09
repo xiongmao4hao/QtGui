@@ -16,6 +16,7 @@
 #include "staticimageproperties.h"
 #include "qtgui.h"
 #include <QtWidgets/QApplication>
-
-
+#include <k4abt.h>
+#include <k4abttypes.h>
+#include "getAngel.h"
 int record_main();
