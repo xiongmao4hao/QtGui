@@ -142,8 +142,11 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 							if (get_body_skeleton == K4A_RESULT_SUCCEEDED)
 							{
 								////***************求角度*******************
-								float* joints_Angel;
-								joints_Angel = JointsPositionToAngel(skeleton);
+								//float (*joints_Angel)[12] ;
+								//for (int i = 0; i < 12; i++) (*joints_Angel)[i] = NULL;//错误：不能创建空的数组初始化
+								float joints_Angel[12];
+								for (int i = 0; i < 12; i++) joints_Angel[i] = NULL; 
+								JointsPositionToAngel(skeleton, &joints_Angel);//必须传入地址&，joints_Angel虽然值相同但是数据类型有问题
 								for (int i = 0; i < 12; i++)
 								{
 									//printf("%f", joints_Angel[i]);
