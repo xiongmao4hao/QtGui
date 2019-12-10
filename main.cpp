@@ -1,4 +1,3 @@
-#define ANGLE_NUM 18
 #include "qtgui.h"
 #include <QtWidgets/QApplication>
 #include "kinect_record.h" 
