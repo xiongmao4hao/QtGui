@@ -1,3 +1,4 @@
+#define ANGLE_NUM 18
 #include "qtgui.h"
 #include <QtWidgets/QApplication>
 #include "kinect_record.h" 
@@ -9,10 +10,11 @@
 #include <windows.h>
 
 
+
 int main(int argc, char *argv[])
 {
-	float joints_Angel[12];
-	for (int i = 0; i < 12; i++) joints_Angel[i] = NULL;
+	float joints_Angel[ANGLE_NUM];
+	for (int i = 0; i < ANGLE_NUM; i++) joints_Angel[i] = NULL;
 	QApplication app(argc, argv);
 	QtGui w(0);//无法设置Qt::WindowType？
 	w.setWindowTitle(QStringLiteral("kinect窗口"));

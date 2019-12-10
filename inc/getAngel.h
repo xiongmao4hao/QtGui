@@ -3,12 +3,12 @@
 #include<stdio.h>
 #include<math.h>
 #include<k4abttypes.h>
+#define ANGLE_NUM 18
 
 //#ifdef __cplusplus
 //extern "C" {
 //#endif
-	float GetAngel(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz);
-	void JointsPositionToAngel(k4abt_skeleton_t skeleton0, float(*Angel)[12]);
+	void JointsPositionToAngel(k4abt_skeleton_t skeleton0, float(*Angel)[ANGLE_NUM]);
 //#ifdef __cplusplus
 //}
 //#endif

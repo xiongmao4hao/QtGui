@@ -19,7 +19,58 @@ float GetAngel(float ax, float ay, float az, float bx, float by, float bz, float
 
 	return Angle;
 }
-void JointsPositionToAngel(k4abt_skeleton_t skeleton0, float(*Angel)[12])
+
+//水平面
+float Get_Angel_xz(k4abt_skeleton_t skeleton0, int hip, int knee)
+{
+
+	float Angel_xz = 0;
+	float Direction_vector[3] = { (skeleton0.joints[knee].position.xyz.x - skeleton0.joints[hip].position.xyz.x),(skeleton0.joints[knee].position.xyz.y - skeleton0.joints[hip].position.xyz.y),(skeleton0.joints[knee].position.xyz.z - skeleton0.joints[hip].position.xyz.z) };
+	//下正 上负
+	float Normal_vector[3] = { 0,1,0 };
+	float pos = (Direction_vector[0] * Normal_vector[0] + Direction_vector[1] * Normal_vector[1] + Direction_vector[2] * Normal_vector[2])
+		/ (sqrt((Direction_vector[0] * Direction_vector[0]) + (Direction_vector[1] * Direction_vector[1]) + (Direction_vector[2] * Direction_vector[2]))
+			* sqrt((Normal_vector[0] * Normal_vector[0]) + (Normal_vector[1] * Normal_vector[1]) + (Normal_vector[2] * Normal_vector[2])));
+	float Angel = acos(pos);
+	Angel_xz = 90 - (Angel * 180) / PI;
+
+	return Angel_xz;
+}
+
+// 失状面
+float Get_Angel_yz(k4abt_skeleton_t skeleton0, int hip, int knee)
+{
+
+	float Angel_yz = 0;
+	float Direction_vector[3] = { (skeleton0.joints[knee].position.xyz.x - skeleton0.joints[hip].position.xyz.x),(skeleton0.joints[knee].position.xyz.y - skeleton0.joints[hip].position.xyz.y),(skeleton0.joints[knee].position.xyz.z - skeleton0.joints[hip].position.xyz.z) };
+	//右正左负
+	float Normal_vector[3] = { 1,0,0 };
+	float pos = (Direction_vector[0] * Normal_vector[0] + Direction_vector[1] * Normal_vector[1] + Direction_vector[2] * Normal_vector[2])
+		/ (sqrt((Direction_vector[0] * Direction_vector[0]) + (Direction_vector[1] * Direction_vector[1]) + (Direction_vector[2] * Direction_vector[2]))
+			* sqrt((Normal_vector[0] * Normal_vector[0]) + (Normal_vector[1] * Normal_vector[1]) + (Normal_vector[2] * Normal_vector[2])));
+	float Angel = acos(pos);
+	Angel_yz = 90 - (Angel * 180) / PI;
+
+	return Angel_yz;
+}
+
+//冠状面
+float Get_Angel_xy(k4abt_skeleton_t skeleton0, int hip, int knee)
+{
+
+	float Angel_xy = 0;
+	float Direction_vector[3] = { (skeleton0.joints[knee].position.xyz.x - skeleton0.joints[hip].position.xyz.x),(skeleton0.joints[knee].position.xyz.y - skeleton0.joints[hip].position.xyz.y),(skeleton0.joints[knee].position.xyz.z - skeleton0.joints[hip].position.xyz.z) };
+	//前正后负
+	float Normal_vector[3] = { 0,0,1 };
+	float pos = (Direction_vector[0] * Normal_vector[0] + Direction_vector[1] * Normal_vector[1] + Direction_vector[2] * Normal_vector[2])
+		/ (sqrt((Direction_vector[0] * Direction_vector[0]) + (Direction_vector[1] * Direction_vector[1]) + (Direction_vector[2] * Direction_vector[2]))
+			* sqrt((Normal_vector[0] * Normal_vector[0]) + (Normal_vector[1] * Normal_vector[1]) + (Normal_vector[2] * Normal_vector[2])));
+	float Angel = acos(pos);
+	Angel_xy = 90 - (Angel * 180) / PI;
+
+	return Angel_xy;
+}
+void JointsPositionToAngel(k4abt_skeleton_t skeleton0, float(*Angel)[ANGLE_NUM])
 {
 	//"[]"优先级低于"()"高于"*"
 	(*Angel)[0] = GetAngel(skeleton0.joints[8].position.xyz.x, skeleton0.joints[8].position.xyz.y, skeleton0.joints[8].position.xyz.z, skeleton0.joints[7].position.xyz.x, skeleton0.joints[7].position.xyz.y, skeleton0.joints[7].position.xyz.z, skeleton0.joints[6].position.xyz.x, skeleton0.joints[6].position.xyz.y, skeleton0.joints[6].position.xyz.z);
@@ -34,13 +85,13 @@ void JointsPositionToAngel(k4abt_skeleton_t skeleton0, float(*Angel)[12])
 	(*Angel)[9] = GetAngel(skeleton0.joints[23].position.xyz.x, skeleton0.joints[23].position.xyz.y, skeleton0.joints[23].position.xyz.z, skeleton0.joints[24].position.xyz.x, skeleton0.joints[24].position.xyz.y, skeleton0.joints[24].position.xyz.z, skeleton0.joints[25].position.xyz.x, skeleton0.joints[25].position.xyz.y, skeleton0.joints[25].position.xyz.z);
 	(*Angel)[10] = GetAngel(skeleton0.joints[26].position.xyz.x, skeleton0.joints[26].position.xyz.y, skeleton0.joints[26].position.xyz.z, skeleton0.joints[3].position.xyz.x, skeleton0.joints[3].position.xyz.y, skeleton0.joints[3].position.xyz.z, skeleton0.joints[2].position.xyz.x, skeleton0.joints[2].position.xyz.y, skeleton0.joints[2].position.xyz.z);
 	(*Angel)[11] = GetAngel(skeleton0.joints[2].position.xyz.x, skeleton0.joints[2].position.xyz.y, skeleton0.joints[2].position.xyz.z, skeleton0.joints[1].position.xyz.x, skeleton0.joints[1].position.xyz.y, skeleton0.joints[1].position.xyz.z, skeleton0.joints[0].position.xyz.x, skeleton0.joints[0].position.xyz.y, skeleton0.joints[0].position.xyz.z);
-	//Angel[12] =
-
-	/*Angel[13] =
-	Angel[14] =
-	Angel[15] =
-	Angel[16] =
-	Angel[17] =
-	*/
+	//左髋关节
+	(*Angel)[12] = Get_Angel_xz(skeleton0, 18, 19);
+	(*Angel)[13] = Get_Angel_yz(skeleton0, 18, 19);
+	(*Angel)[14] = Get_Angel_xy(skeleton0, 18, 19);
+	//右髋关节
+	(*Angel)[15] = Get_Angel_xz(skeleton0, 22, 23);
+	(*Angel)[16] = Get_Angel_yz(skeleton0, 22, 23);
+	(*Angel)[17] = Get_Angel_xy(skeleton0, 22, 23);
 
 }

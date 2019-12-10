@@ -21,4 +21,4 @@
 #include "getAngel.h"
 
 
-int record_main(float(&joints_Angel)[12]);
+int record_main(float(&joints_Angel)[ANGLE_NUM]);
