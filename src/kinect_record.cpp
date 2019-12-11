@@ -157,7 +157,7 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 								uint64_t timestamp;
 								timestamp = k4abt_frame_get_device_timestamp_usec(body_frame);
 								fprintf(fp, "%llu,", timestamp);
-								for (int i = 0; i < 32; i++)
+								for (int i = 0; i < BODU_POINT_NUM; i++)
 								{
 									// write the raw cordinates into the txt file
 									/*tf_source_depth.xyz.x = skeleton.joints[i].position.xyz.x;
