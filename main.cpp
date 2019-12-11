@@ -1,12 +1,10 @@
 #include "qtgui.h"
 #include <QtWidgets/QApplication>
+
 #include "kinect_record.h" 
-#include <thread>
-#include <iostream>
-#include <windows.h>
-#include <thread>
-#include <iostream>
-#include <windows.h>
+#include "windows_thread.h"
+
+
 
 
 

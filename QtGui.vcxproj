@@ -111,9 +111,13 @@
   <ItemGroup>
     <ClInclude Include="inc\DepthPixelColorizer.h" />
     <ClInclude Include="inc\getAngel.h" />
+    <ClInclude Include="inc\kinect_angle.h" />
+    <ClInclude Include="inc\kinect_cv_dk.h" />
     <ClInclude Include="inc\kinect_record.h" />
     <ClInclude Include="inc\Pixel.h" />
     <ClInclude Include="inc\StaticImageProperties.h" />
+    <ClInclude Include="inc\windows_thread.h" />
+    <ClInclude Include="inc\windows_time.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

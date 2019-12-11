@@ -1,10 +1,12 @@
 #pragma once
+
 #include<stdlib.h>
 #include<stdio.h>
 #include<math.h>
-#include<k4abttypes.h>
-#define ANGLE_NUM 18
+#include "kinect_angle.h"
 
+
+//注释部分展示了如果不是.cpp而是.c时为了避免出错的声明（声明之后用c的编译方式）。
 //#ifdef __cplusplus
 //extern "C" {
 //#endif
