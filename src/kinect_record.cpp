@@ -352,7 +352,7 @@ uint32_t init_start(int* master_num)
 		cout << "no azure kinect dk devices detected!" << endl;
 	}
 
-	//初始化为NULL但是会造成程序在k4a_record_close时报错
+	//初始化为NULL但是会造成程序在k4a_record_close时报错，于是在后续的if中解决了此问题
 	record = new k4a_record_t[devicecount]{ NULL };
 	
 	record = new k4a_record_t[devicecount];
