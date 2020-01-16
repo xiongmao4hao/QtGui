@@ -30,7 +30,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>D:\Azure Kinect DK\Azure Kinect DK\sdk\include;D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\include;D:\Azure Kinect DK\qt_try\QtGui\inc;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Azure Kinect DK\qt_try\QtGui;D:\Azure Kinect DK\Azure Kinect DK\sdk\include;D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\include;D:\Azure Kinect DK\qt_try\QtGui\inc;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\windows-desktop\amd64\release\lib;D:\Azure Kinect DK\Azure Kinect DK\sdk\windows-desktop\amd64\release\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -100,9 +100,6 @@
     <ClCompile Include="src\stry.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="qtgui.h" />
-  </ItemGroup>
-  <ItemGroup>
     <QtUic Include="qtgui.ui" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +115,7 @@
     <ClInclude Include="inc\StaticImageProperties.h" />
     <ClInclude Include="inc\windows_thread.h" />
     <ClInclude Include="inc\windows_time.h" />
+    <QtMoc Include="qtgui.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
