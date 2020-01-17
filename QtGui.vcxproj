@@ -30,7 +30,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>D:\Azure Kinect DK\Azure Kinect DK\sdk\include;D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\include;D:\Azure Kinect DK\qt_try\QtGui\inc;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Azure Kinect DK\Azure Kinect DK\sdk\include;D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\include;D:\Azure Kinect DK\qt_try\QtGui\inc;D:\Azure Kinect DK\qt_try\QtGui;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\windows-desktop\amd64\release\lib;D:\Azure Kinect DK\Azure Kinect DK\sdk\windows-desktop\amd64\release\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
