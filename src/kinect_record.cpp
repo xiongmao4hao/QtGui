@@ -1,5 +1,13 @@
 #include "kinect_record.h"
 
+#include <array>
+#include <iostream>
+#include <map>
+#include <vector>
+
+#include <BodyTrackingHelpers.h>
+#include <Utilities.h>
+#include <Window3dWrapper.h>
 
 using namespace cv;
 using namespace std;
@@ -12,6 +20,71 @@ using namespace std;
         printf("%s \n - (File: %s, Function: %s, Line: %d)\n", error, __FILE__, __FUNCTION__, __LINE__); \
         exit(1);                                                                                         \
     }       
+
+////////////////////////////////////////////3D////////////////////////////////////////////////////////
+void PrintUsage()
+{
+	printf("\nUSAGE: (k4abt_)simple_3d_viewer.exe SensorMode[NFOV_UNBINNED, WFOV_BINNED](optional) RuntimeMode[CPU](optional)\n");
+	printf("  - SensorMode: \n");
+	printf("      NFOV_UNBINNED (default) - Narraw Field of View Unbinned Mode [Resolution: 640x576; FOI: 75 degree x 65 degree]\n");
+	printf("      WFOV_BINNED             - Wide Field of View Binned Mode [Resolution: 512x512; FOI: 120 degree x 120 degree]\n");
+	printf("  - RuntimeMode: \n");
+	printf("      CPU - Use the CPU only mode. It runs on machines without a GPU but it will be much slower\n");
+	printf("e.g.   (k4abt_)simple_3d_viewer.exe WFOV_BINNED CPU\n");
+	printf("e.g.   (k4abt_)simple_3d_viewer.exe CPU\n");
+	printf("e.g.   (k4abt_)simple_3d_viewer.exe WFOV_BINNED\n");
+}
+
+void PrintAppUsage()
+{
+	printf("\n");
+	printf(" Basic Navigation:\n\n");
+	printf(" Rotate: Rotate the camera by moving the mouse while holding mouse left button\n");
+	printf(" Pan: Translate the scene by holding Ctrl key and drag the scene with mouse left button\n");
+	printf(" Zoom in/out: Move closer/farther away from the scene center by scrolling the mouse scroll wheel\n");
+	printf(" Select Center: Center the scene based on a detected joint by right clicking the joint with mouse\n");
+	printf("\n");
+	printf(" Key Shortcuts\n\n");
+	printf(" ESC: quit\n");
+	printf(" h: help\n");
+	printf(" b: body visualization mode\n");
+	printf(" k: 3d window layout\n");
+	printf("\n");
+}
+
+// Global State and Key Process Function
+bool s_isRunning = true;
+Visualization::Layout3d s_layoutMode = Visualization::Layout3d::OnlyMainView;
+bool s_visualizeJointFrame = false;
+
+int64_t ProcessKey(void* /*context*/, int key)
+{
+	// https://www.glfw.org/docs/latest/group__keys.html
+	switch (key)
+	{
+		// Quit
+	case GLFW_KEY_ESCAPE:
+		s_isRunning = false;
+		break;
+	case GLFW_KEY_K:
+		s_layoutMode = (Visualization::Layout3d)(((int)s_layoutMode + 1) % (int)Visualization::Layout3d::Count);
+		break;
+	case GLFW_KEY_B:
+		s_visualizeJointFrame = !s_visualizeJointFrame;
+		break;
+	case GLFW_KEY_H:
+		PrintAppUsage();
+		break;
+	}
+	return 1;
+}
+
+int64_t CloseCallback(void* /*context*/)
+{
+	s_isRunning = false;
+	return 1;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 thread* tids;
 thread* tids_s;
@@ -56,6 +129,13 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 	k4abt_tracker_t tracker = NULL;
 	k4abt_tracker_configuration_t tracker_config = K4ABT_TRACKER_CONFIG_DEFAULT;
 	VERIFY(k4abt_tracker_create(&sensor_calibration[i], tracker_config, &tracker), "Body tracker initialization failed!");
+
+	//建立3d框用变量
+	Window3dWrapper window3d;
+	window3d.Create("3D Visualization", sensor_calibration[i]);
+	window3d.SetCloseCallback(CloseCallback);
+	window3d.SetKeyCallback(ProcessKey);
+
 	//查看capture地址
 	//cout << "capture adress" << &sensor_capture << endl;
 
@@ -130,8 +210,15 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 						k4abt_frame_t body_frame = NULL;
 						k4a_wait_result_t pop_frame_result = \
 							k4abt_tracker_pop_result(tracker, &body_frame, K4A_WAIT_INFINITE);
+
+						// 骨骼点数据清除和计算人数
+						window3d.CleanJointsAndBones();
+						uint32_t numBodies = k4abt_frame_get_num_bodies(body_frame);
+
+
 						if (pop_frame_result == K4A_WAIT_RESULT_SUCCEEDED)
 						{
+
 							//Get the number of detecied human bodies
 							//size_t num_bodies = k4abt_frame_get_num_bodies(body_frame0);
 							//Get access to every idex of human bodies
@@ -139,8 +226,48 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 							k4a_result_t get_body_skeleton = \
 								k4abt_frame_get_body_skeleton(body_frame, 0, &skeleton);
 
+							// Assign the correct color based on the body id
+							Color color = g_bodyColors[0];
+							color.a = 0.4f;
+							Color lowConfidenceColor = color;
+							lowConfidenceColor.a = 0.1f;
+
 							if (get_body_skeleton == K4A_RESULT_SUCCEEDED)
 							{
+								// Visualize joints
+								for (int joint = 0; joint < static_cast<int>(K4ABT_JOINT_COUNT); joint++)
+								{
+
+									if (skeleton.joints[joint].confidence_level >= K4ABT_JOINT_CONFIDENCE_LOW)
+									{
+										const k4a_float3_t& jointPosition = skeleton.joints[joint].position;
+										const k4a_quaternion_t& jointOrientation = skeleton.joints[joint].orientation;
+
+										window3d.AddJoint(
+											jointPosition,
+											jointOrientation,
+											skeleton.joints[joint].confidence_level >= K4ABT_JOINT_CONFIDENCE_MEDIUM ? color : lowConfidenceColor);
+									}
+								}
+
+								// Visualize bones
+								for (size_t boneIdx = 0; boneIdx < g_boneList.size(); boneIdx++)
+								{
+									k4abt_joint_id_t joint1 = g_boneList[boneIdx].first;
+									k4abt_joint_id_t joint2 = g_boneList[boneIdx].second;
+
+									if (skeleton.joints[joint1].confidence_level >= K4ABT_JOINT_CONFIDENCE_LOW &&
+										skeleton.joints[joint2].confidence_level >= K4ABT_JOINT_CONFIDENCE_LOW)
+									{
+										bool confidentBone = skeleton.joints[joint1].confidence_level >= K4ABT_JOINT_CONFIDENCE_MEDIUM &&
+											skeleton.joints[joint2].confidence_level >= K4ABT_JOINT_CONFIDENCE_MEDIUM;
+										const k4a_float3_t& joint1Position = skeleton.joints[joint1].position;
+										const k4a_float3_t& joint2Position = skeleton.joints[joint2].position;
+
+										window3d.AddBone(joint1Position, joint2Position, confidentBone ? color : lowConfidenceColor);
+									}
+								}
+
 								////***************求角度*******************
 								//float (*joints_Angel)[ANGLE_NUM] ;
 								//for (int i = 0; i < 12; i++) (*joints_Angel)[i] = NULL;//错误：不能创建空的数组初始化
@@ -206,6 +333,11 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 							printf("Pop body frame result failed!\n");
 							break;
 						}
+
+						//3D显示配套
+						window3d.SetLayout3d(s_layoutMode);
+						window3d.SetJointFrameVisualization(s_visualizeJointFrame);
+						window3d.Render();
 					}
 				}
 
@@ -326,6 +458,7 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 		//}
 		if (KEY_DOWN('Q'))
 		{
+			window3d.Delete();//关闭3D窗口
 			k4a_device_stop_cameras(dev_d);//停止流
 			k4abt_tracker_shutdown(tracker);//关闭捕捉
 			k4abt_tracker_destroy(tracker);
