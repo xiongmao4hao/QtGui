@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>718</width>
-    <height>775</height>
+    <height>882</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -356,10 +356,10 @@
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="text">
-     <string>髋(Hip)</string>
+     <string>髋左(Hip)</string>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="transverse">
+   <widget class="QTextBrowser" name="transverse_left">
     <property name="geometry">
      <rect>
       <x>290</x>
@@ -369,7 +369,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="frantal">
+   <widget class="QTextBrowser" name="frantal_left">
     <property name="geometry">
      <rect>
       <x>385</x>
@@ -379,7 +379,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="sagittal">
+   <widget class="QTextBrowser" name="sagittal_left">
     <property name="geometry">
      <rect>
       <x>480</x>
@@ -500,8 +500,8 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>530</x>
-      <y>630</y>
+      <x>510</x>
+      <y>720</y>
       <width>90</width>
       <height>30</height>
      </rect>
@@ -518,8 +518,8 @@
    <widget class="QPushButton" name="stopButton">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>630</y>
+      <x>330</x>
+      <y>720</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -531,14 +531,173 @@
    <widget class="QPushButton" name="startButton">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>630</y>
+      <x>220</x>
+      <y>720</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
      <string>开始</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>650</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>(Transverse)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>650</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>(Frantal)</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="frantal_right">
+    <property name="geometry">
+     <rect>
+      <x>385</x>
+      <y>590</y>
+      <width>80</width>
+      <height>35</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>305</x>
+      <y>630</y>
+      <width>54</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>横截面</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="sagittal_right">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>590</y>
+      <width>80</width>
+      <height>35</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>495</x>
+      <y>630</y>
+      <width>54</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>矢状面</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>630</y>
+      <width>54</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>冠状面</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="transverse_right">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>590</y>
+      <width>80</width>
+      <height>35</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>650</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>(Sagittal)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>600</y>
+      <width>107</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>13</pointsize>
+     </font>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>髋右(Hip)</string>
     </property>
    </widget>
   </widget>
