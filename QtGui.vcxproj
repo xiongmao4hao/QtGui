@@ -116,6 +116,7 @@
     <QtMoc Include="qtgui.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="MainWindow.ui" />
     <QtUic Include="qtgui.ui" />
   </ItemGroup>
   <ItemGroup>

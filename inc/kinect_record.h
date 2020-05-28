@@ -8,6 +8,15 @@
 #include "kinect_cv_dk.h"
 #include "kinect_angle.h"
 
+#include <array>
+#include <iostream>
+#include <map>
+#include <vector>
+
+#include <BodyTrackingHelpers.h>
+#include <Utilities.h>
+#include <Window3dWrapper.h>
+
 
 
 

@@ -89,6 +89,9 @@
     <QtUic Include="qtgui.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="MainWindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="qtgui.qrc">

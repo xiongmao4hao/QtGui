@@ -1,13 +1,6 @@
 #include "kinect_record.h"
 
-#include <array>
-#include <iostream>
-#include <map>
-#include <vector>
 
-#include <BodyTrackingHelpers.h>
-#include <Utilities.h>
-#include <Window3dWrapper.h>
 
 using namespace cv;
 using namespace std;
@@ -92,8 +85,8 @@ k4a_device_t* dev;
 k4a_record_t* record = NULL;
 k4a_calibration_t* sensor_calibration;
 k4a_device_configuration_t* config;
-mutex Flag1to1, Flagr1to1;
-int flag1to1 = 0, flagr1to1 = 0;
+mutex Flag1to1, Flagr1to1, Flagangle1to1;
+int flag1to1 = 0, flagr1to1 = 0, flagangle1to1 = 0, flagmaster = 0;
 //bool esc = false;
 
 
@@ -104,8 +97,12 @@ void save(cv::Mat colorFrame, int i, int frame_count)//每次保存时所创建的线程
 	cout << "You can take another picture1!" << endl;
 }
 
-void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i, int master_num, int num, float(&joints_Angel)[ANGLE_NUM])  //普通的函数，用来执行线程
+void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i, int master_num, int num, \
+	float(&joints_Angeluse)[ANGLE_NUM], float(&joints_AngelALL)[ANGLE_NUM])  //普通的函数，用来执行线程
 {
+	//为了保存单独一个相机的关节角度建立的数组
+	float joints_Angel[ANGLE_NUM];
+	for (int i = 0; i < ANGLE_NUM; i++) joints_Angel[i] = NULL;
 	//为save建立的变量
 	int flag = -1, flag_r = -1;
 	int frame_count = 0;
@@ -280,6 +277,40 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 									fprintf(fpa,"%f,", joints_Angel[i]);//注意每个保存
 								}
 								fprintf(fpa, "\n");
+								//保存关节点数据融合结果
+								std::unique_lock<std::mutex> locker_r(Flagangle1to1);
+								for (int i = 0; i < ANGLE_NUM; i++) joints_Angeluse[i] += joints_Angel[i];//进行结果的累加
+								if (flagangle1to1 != 0 || i == master_num )//在拍照记录抵消（即主设备和从设备都拍完一张，flagangle1to1 == 0）时进行关节角平均（else操作）。前提是这不是主设备。
+								{
+									if (i == master_num)
+									{
+										flagangle1to1 += num - 1;
+										flagmaster += 1;//计数master个数，如果超过2个代表从设备未捕捉到
+									}
+									else
+										flagangle1to1 -= 1;
+									locker_r.unlock();
+
+								}
+								else
+								{
+									locker_r.unlock();
+									if (flagmaster == 1 || num == 1)//master个数，如果超过2个代表从设备未捕捉到（但是单摄像机时不一样）
+									{
+										for (int i = 0; i < ANGLE_NUM; i++) joints_AngelALL[i] = joints_Angeluse[i] / ANGLE_NUM;
+										for (int i = 0; i < ANGLE_NUM; i++) joints_Angeluse[i] = 0;
+									}
+									else
+									{
+										//以下两句在下一个主设备拍到前都会进入这个else
+										flagmaster = 0;
+										flagangle1to1 = 0;
+										//以下一句保证初始化累加数组
+										for (int i = 0; i < ANGLE_NUM; i++) joints_Angeluse[i] = 0;
+									}
+								}
+	
+								
 								//****************************************
 								uint64_t timestamp;
 								timestamp = k4abt_frame_get_device_timestamp_usec(body_frame);
@@ -342,14 +373,17 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 				}
 
 			}
-			//互斥量Flagr1to1，保证拍照数量
+			//互斥量Flagr1to1，保证录像数量
 			std::unique_lock<std::mutex> locker_r(Flagr1to1);
 			if (KEY_DOWN('N') && flag_r == -1 || flagr1to1 != 0)
 			{
 				if (i == master_num)
 					flagr1to1 += num - 1;
 				else
-					flagr1to1 -= 1;
+					if (num > 1)//防止只有一台设备
+					{
+						flagr1to1 -= 1;
+					}	
 				locker_r.unlock();
 				flag_r = 0;
 				char name[220], namet[220], tmp[20], buffer[80];
@@ -422,7 +456,10 @@ void cap(k4a_device_t& dev_d, cv::Mat& colorFrame, k4a_record_t& record_d, int i
 				if (i == master_num)
 					flag1to1 += num - 1;
 				else
-					flag1to1 -= 1;
+					if (num > 1)//防止只有一台设备
+					{
+						flagr1to1 -= 1;
+					}
 				locker.unlock();
 				frame_count++;
 				flag = 0;
@@ -575,12 +612,16 @@ uint32_t init_start(int* master_num)
 //
 //}
 
-int record_main(float (&joints_Angel)[18])
+
+int record_main(float (&joints_AngelALL)[ANGLE_NUM])
 {
+	//新建一累加的关节点数据
+	float joints_Angeluse[ANGLE_NUM];
+	for (int i = 0; i < ANGLE_NUM; i++) joints_Angeluse[i] = NULL;
 	//主函数所用变量
 
 	cv::Mat* colorframe = NULL;
-	int master_num;
+	int master_num = -1;
 
 
 	uint32_t num = init_start(&master_num);//初始化,启动相机
@@ -592,7 +633,7 @@ int record_main(float (&joints_Angel)[18])
 	//tid_ss = thread(keyboards);
 	for (int i = 0; i < num; ++i)
 	{
-		tids[i] = thread(cap, ref(dev[i]), ref(colorframe[i]), ref(record[i]), i, master_num, num, ref(joints_Angel));
+		tids[i] = thread(cap, ref(dev[i]), ref(colorframe[i]), ref(record[i]), i, master_num, num, ref(joints_Angeluse), ref(joints_AngelALL));
 
 	}
 	for (int i = 0; i < num; ++i)

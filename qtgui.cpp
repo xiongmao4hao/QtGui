@@ -8,7 +8,7 @@
 //2.int event->timerld(); //返回当前的ld.
 //3.void killTimer(int); //停止定时器.
 
-float joints_Angel[ANGLE_NUM];
+float joints_AngelALL[ANGLE_NUM];
 QTextBrowser* qt_joints_Angel[ANGLE_NUM];
 
 QtGui::QtGui(QWidget *parent)
@@ -16,7 +16,7 @@ QtGui::QtGui(QWidget *parent)
 {
 	ui.setupUi(this);
 	//初始化保存角度和窗口的数组
-	for (int i = 0; i < ANGLE_NUM; i++) joints_Angel[i] = NULL;
+	for (int i = 0; i < ANGLE_NUM; i++) joints_AngelALL[i] = NULL;
 	QTextBrowser*  qt_joints_Angel_TCM[ANGLE_NUM] = \
 	{
 		ui.shoulder_left,
@@ -40,10 +40,10 @@ QtGui::QtGui(QWidget *parent)
 	};
 	for (int i = 0; i < ANGLE_NUM; i++) qt_joints_Angel[i] = qt_joints_Angel_TCM[i];
 
-	std::thread record = std::thread(record_main, std::ref(joints_Angel));
+	std::thread record = std::thread(record_main, std::ref(joints_AngelALL));
 	record.detach();
 	//连接信号与槽.
-	connect(ui.startButton, SIGNAL(clicked()), this, SLOT(startTimerSlot()));
+	connect(ui.startButton, SIGNAL(clicked()), this, SLOT(startTimerSlot()));                                                                                                                                                                   
 	connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(stopTimerSlot()));
 }
 
@@ -56,7 +56,7 @@ void QtGui::timerEvent(QTimerEvent* event)
 		{
 			for (int i = 0; i < ANGLE_NUM; i++)
 			{
-				float Angel_TCM = joints_Angel[i];
+				float Angel_TCM = joints_AngelALL[i];
 				QString line;
 				line = line.sprintf("%f", Angel_TCM);
 				//设置显示.
@@ -72,6 +72,7 @@ void QtGui::timerEvent(QTimerEvent* event)
 			////设置显示.
 			//ui.shoulder_left->setText(line);
 			this->m_lampStatus = false;
+
 		}
 	}
 }
