@@ -27,8 +27,6 @@ private :
 private slots:
 	void startTimerSlot();
 	void stopTimerSlot();
-	void inputtextchanged(const QString& arg1);
-	void spinBox_numchanged(double x);
 	
 	//void on_checkBox_clicked();
 	//void on_checkBox_2_clicked();
