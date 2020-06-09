@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_qtgui.h"
+#include "QString.h"
 
 class QtGui : public QMainWindow
 {
@@ -9,9 +10,12 @@ class QtGui : public QMainWindow
 
 public:
 	QtGui(QWidget *parent = Q_NULLPTR);
+	
 
 private:
 	Ui::QtGuiClass ui;
+
+
 
 protected:
 	void timerEvent(QTimerEvent* event);
@@ -23,6 +27,9 @@ private :
 private slots:
 	void startTimerSlot();
 	void stopTimerSlot();
+	void inputtextchanged(const QString& arg1);
+	void spinBox_numchanged(double x);
+	
 	//void on_checkBox_clicked();
 	//void on_checkBox_2_clicked();
 	//void on_pushButton_clicked();

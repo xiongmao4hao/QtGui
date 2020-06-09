@@ -17,7 +17,12 @@
 #include <Utilities.h>
 #include <Window3dWrapper.h>
 
+#include <cmath>
+#include <time.h>
+
+#include <math.h>
 
 
 
-int record_main(float(&joints_Angel)[ANGLE_NUM]);
+
+int record_main(float(&joints_Angel)[ANGLE_NUM], float (& dis)[1]);

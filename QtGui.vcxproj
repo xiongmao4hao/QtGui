@@ -30,11 +30,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>D:\Azure Kinect DK\Azure Kinect DK\sdk\include;D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\include;D:\Azure Kinect DK\qt_try\QtGui\inc;D:\Azure Kinect DK\qt_try\QtGui;D:\Azure Kinect DK\qt_try\QtGui\glad;D:\Azure Kinect DK\qt_try\QtGui\packages\glfw.3.3.0\build\native\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Azure Kinect DK\libjpeg-turbo\include;D:\Azure Kinect DK\Azure Kinect DK\sdk\include;D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\include;D:\Azure Kinect DK\qt_try\QtGui\inc;D:\Azure Kinect DK\qt_try\QtGui;D:\Azure Kinect DK\qt_try\QtGui\glad;D:\Azure Kinect DK\qt_try\QtGui\packages\glfw.3.3.0\build\native\include\GLFW;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\windows-desktop\amd64\release\lib;D:\Azure Kinect DK\Azure Kinect DK\sdk\windows-desktop\amd64\release\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>D:\Azure Kinect DK\libjpeg-turbo\include;D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\include;D:\Azure Kinect DK\Azure Kinect DK\sdk\include;D:\Azure Kinect DK\qt_try\QtGui\inc;D:\Azure Kinect DK\qt_try\QtGui\glad;D:\Azure Kinect DK\qt_try\QtGui\packages\glfw.3.3.0\build\native\include\GLFW;D:\Azure Kinect DK\qt_try\QtGui;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Azure Kinect DK\Azure Kinect DK Body Tracker\sdk\windows-desktop\amd64\release\lib;D:\Azure Kinect DK\Azure Kinect DK\sdk\windows-desktop\amd64\release\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
@@ -82,24 +84,30 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat />
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_world411.lib;k4abt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="qtgui.cpp" />
+    <ClCompile Include="read_record.cpp" />
     <ClCompile Include="src\CoordinateAxes.cpp" />
     <ClCompile Include="src\Cylinder.cpp" />
     <ClCompile Include="src\FloorRenderer.cpp" />
     <ClCompile Include="src\getAngel.cpp" />
+    <ClCompile Include="src\get_roecord_config.cpp" />
     <ClCompile Include="src\Helpers.cpp" />
     <ClCompile Include="src\kinect_record.cpp" />
     <ClCompile Include="src\PointCloudRenderer.cpp" />
@@ -111,6 +119,7 @@
     <ClCompile Include="src\ViewControl.cpp" />
     <ClCompile Include="src\Window3dWrapper.cpp" />
     <ClCompile Include="src\WindowController3d.cpp" />
+    <ClCompile Include="tryClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qtgui.h" />
@@ -118,6 +127,7 @@
   <ItemGroup>
     <QtUic Include="MainWindow.ui" />
     <QtUic Include="qtgui.ui" />
+    <QtUic Include="tryClass.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="qtgui.qrc" />
@@ -125,13 +135,17 @@
   <ItemGroup>
     <ClInclude Include="inc\DepthPixelColorizer.h" />
     <ClInclude Include="inc\getAngel.h" />
+    <ClInclude Include="inc\get_roecord_config.h" />
     <ClInclude Include="inc\kinect_angle.h" />
     <ClInclude Include="inc\kinect_cv_dk.h" />
     <ClInclude Include="inc\kinect_record.h" />
     <ClInclude Include="inc\Pixel.h" />
     <ClInclude Include="inc\StaticImageProperties.h" />
+    <ClInclude Include="inc\transformation_helpers.h" />
     <ClInclude Include="inc\windows_thread.h" />
     <ClInclude Include="inc\windows_time.h" />
+    <ClInclude Include="read_record.h" />
+    <QtMoc Include="tryClass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

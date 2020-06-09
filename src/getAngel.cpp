@@ -54,6 +54,7 @@ float Get_Angel_yz(k4abt_skeleton_t skeleton0, int hip, int knee)
 	return Angel_yz;
 }
 
+
 //¹Ú×´Ãæ
 float Get_Angel_xy(k4abt_skeleton_t skeleton0, int hip, int knee)
 {
@@ -70,15 +71,29 @@ float Get_Angel_xy(k4abt_skeleton_t skeleton0, int hip, int knee)
 
 	return Angel_xy;
 }
+//¼ç²¿
+float Get_Angel_Shoulder(k4abt_skeleton_t skeleton0, int shoulder, int elbow, int spine_chest, int spine_naval) {
+	float Angel_shoulder = 0;
+	float Direction_vector[3] = { (skeleton0.joints[elbow].position.xyz.x - skeleton0.joints[shoulder].position.xyz.x),(skeleton0.joints[elbow].position.xyz.y - skeleton0.joints[shoulder].position.xyz.y),(skeleton0.joints[elbow].position.xyz.z - skeleton0.joints[shoulder].position.xyz.z) };
+	float Normal_vector[3] = { (skeleton0.joints[spine_naval].position.xyz.x - skeleton0.joints[spine_chest].position.xyz.x),(skeleton0.joints[spine_naval].position.xyz.y - skeleton0.joints[spine_chest].position.xyz.y),(skeleton0.joints[spine_naval].position.xyz.z - skeleton0.joints[spine_chest].position.xyz.z) };
+	float pos = (Direction_vector[0] * Normal_vector[0] + Direction_vector[1] * Normal_vector[1] + Direction_vector[2] * Normal_vector[2])
+		/ (sqrt((Direction_vector[0] * Direction_vector[0]) + (Direction_vector[1] * Direction_vector[1]) + (Direction_vector[2] * Direction_vector[2]))
+			* sqrt((Normal_vector[0] * Normal_vector[0]) + (Normal_vector[1] * Normal_vector[1]) + (Normal_vector[2] * Normal_vector[2])));
+	float Angel = acos(pos);
+	Angel_shoulder =  (Angel * 180) / PI;
+	return Angel_shoulder;
+}
 void JointsPositionToAngel(k4abt_skeleton_t skeleton0, float(*Angel)[ANGLE_NUM])
 {
 	//"[]"ÓÅÏÈ¼¶µÍÓÚ"()"¸ßÓÚ"*"
+	//0-11 ×óÍó¡¢×óÖâ¡¢×ó¼ç¡¢ÓÒÍó¡¢ÓÒÖâ¡¢ÓÒ¼ç¡¢×óÏ¥¡¢×óõ×¡¢ÓÒÏ¥¡¢ÓÒõ×¡¢²±×Ó¡¢¼¹Öù
+	//¼ç²¿ÔÚÉÏÃæÐ´³ö
 	(*Angel)[0] = GetAngel(skeleton0.joints[8].position.xyz.x, skeleton0.joints[8].position.xyz.y, skeleton0.joints[8].position.xyz.z, skeleton0.joints[7].position.xyz.x, skeleton0.joints[7].position.xyz.y, skeleton0.joints[7].position.xyz.z, skeleton0.joints[6].position.xyz.x, skeleton0.joints[6].position.xyz.y, skeleton0.joints[6].position.xyz.z);
 	(*Angel)[1] = GetAngel(skeleton0.joints[7].position.xyz.x, skeleton0.joints[7].position.xyz.y, skeleton0.joints[7].position.xyz.z, skeleton0.joints[6].position.xyz.x, skeleton0.joints[6].position.xyz.y, skeleton0.joints[6].position.xyz.z, skeleton0.joints[5].position.xyz.x, skeleton0.joints[5].position.xyz.y, skeleton0.joints[5].position.xyz.z);
-	(*Angel)[2] = GetAngel(skeleton0.joints[6].position.xyz.x, skeleton0.joints[6].position.xyz.y, skeleton0.joints[6].position.xyz.z, skeleton0.joints[5].position.xyz.x, skeleton0.joints[5].position.xyz.y, skeleton0.joints[5].position.xyz.z, skeleton0.joints[4].position.xyz.x, skeleton0.joints[4].position.xyz.y, skeleton0.joints[4].position.xyz.z);
+	(*Angel)[2] = Get_Angel_Shoulder(skeleton0, 5, 6, 2, 1);
 	(*Angel)[3] = GetAngel(skeleton0.joints[15].position.xyz.x, skeleton0.joints[15].position.xyz.y, skeleton0.joints[15].position.xyz.z, skeleton0.joints[14].position.xyz.x, skeleton0.joints[14].position.xyz.y, skeleton0.joints[14].position.xyz.z, skeleton0.joints[13].position.xyz.x, skeleton0.joints[13].position.xyz.y, skeleton0.joints[13].position.xyz.z);
 	(*Angel)[4] = GetAngel(skeleton0.joints[14].position.xyz.x, skeleton0.joints[14].position.xyz.y, skeleton0.joints[14].position.xyz.z, skeleton0.joints[13].position.xyz.x, skeleton0.joints[13].position.xyz.y, skeleton0.joints[13].position.xyz.z, skeleton0.joints[12].position.xyz.x, skeleton0.joints[12].position.xyz.y, skeleton0.joints[12].position.xyz.z);
-	(*Angel)[5] = GetAngel(skeleton0.joints[13].position.xyz.x, skeleton0.joints[13].position.xyz.y, skeleton0.joints[13].position.xyz.z, skeleton0.joints[12].position.xyz.x, skeleton0.joints[12].position.xyz.y, skeleton0.joints[12].position.xyz.z, skeleton0.joints[11].position.xyz.x, skeleton0.joints[11].position.xyz.y, skeleton0.joints[11].position.xyz.z);
+	(*Angel)[5] = Get_Angel_Shoulder(skeleton0, 12, 13, 2, 1);
 	(*Angel)[6] = GetAngel(skeleton0.joints[18].position.xyz.x, skeleton0.joints[18].position.xyz.y, skeleton0.joints[18].position.xyz.z, skeleton0.joints[19].position.xyz.x, skeleton0.joints[19].position.xyz.y, skeleton0.joints[19].position.xyz.z, skeleton0.joints[20].position.xyz.x, skeleton0.joints[20].position.xyz.y, skeleton0.joints[20].position.xyz.z);
 	(*Angel)[7] = GetAngel(skeleton0.joints[19].position.xyz.x, skeleton0.joints[19].position.xyz.y, skeleton0.joints[19].position.xyz.z, skeleton0.joints[20].position.xyz.x, skeleton0.joints[20].position.xyz.y, skeleton0.joints[20].position.xyz.z, skeleton0.joints[21].position.xyz.x, skeleton0.joints[21].position.xyz.y, skeleton0.joints[21].position.xyz.z);
 	(*Angel)[8] = GetAngel(skeleton0.joints[22].position.xyz.x, skeleton0.joints[22].position.xyz.y, skeleton0.joints[22].position.xyz.z, skeleton0.joints[23].position.xyz.x, skeleton0.joints[23].position.xyz.y, skeleton0.joints[23].position.xyz.z, skeleton0.joints[24].position.xyz.x, skeleton0.joints[24].position.xyz.y, skeleton0.joints[24].position.xyz.z);

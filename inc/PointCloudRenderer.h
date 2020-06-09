@@ -13,6 +13,7 @@
 #include "RendererBase.h"
 #include <optional>
 
+
 namespace Visualization
 {
     class PointCloudRenderer : public RendererBase
